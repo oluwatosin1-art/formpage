@@ -78,7 +78,7 @@ app.get("/agencies", (req, res) => {
 //Update an agencies ID (UPDATE)
 app.put("/agencies/id:",(req, res) =>{
   const {id} = req.params;
-  const  { region, pcc, sc_code, agency_name, account_officer} = req.body
+  const{ region, pcc, sc_code, agency_name, account_officer} = req.body
   const query =
  " UPDATE agencies SET region=?, pcc=?, sc_code=?, agency_name=?, account_officer=? WHERE id=?,"
  db.query(

@@ -159,7 +159,7 @@ const Log = () => {
             type="text"
             id="scCode"
             name="scCode"
-            value={formData.scCode}
+            value={formData.sc_code}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded"
           />
@@ -174,7 +174,7 @@ const Log = () => {
             type="text"
             id="agencyName"
             name="agencyName"
-            value={formData.agencyName}
+            value={formData.agency_name}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded"
           />
@@ -189,7 +189,7 @@ const Log = () => {
             type="text"
             id="accountOfficer"
             name="accountOfficer"
-            value={formData.accountOfficer}
+            value={formData.account_officer}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded"
           />
