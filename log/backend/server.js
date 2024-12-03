@@ -1,100 +1,79 @@
 const express = require("express");
-const mysql = require("mysql2");
 const cors = require("cors");
-const bodyParser = require("body-parser")
+const mysql = require("mysql2");
+const bodyParser = require("body-parser");
 
-// Initialize express app
 const app = express();
 const port = 5000;
 
-// Middleware to parse JSON data
+// Middleware
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-// Create a connection to the MySQL database
+// MySQL connection
 const db = mysql.createConnection({
-  host: "localhost", // MySQL server hostname
-  user: "root",      // MySQL username (default is "root")
-  password: "@boborinwa12",      // MySQL password (leave empty if none)  
-  database: "agency_db", // The name of the database
+  host: "localhost",
+  user: "root",
+  password: "@boborinwa12",
+  database: "agency_db",
 });
 
-// Connect to the database
 db.connect((err) => {
   if (err) {
-    console.error("Error connecting to MySQL:", err);
+    console.error("Error connecting to the database:", err);
     return;
   }
-  console.log("Connected to MySQL database");
+  console.log("Connected to the MySQL database");
 });
 
-// Test the connection
-app.get("/", (req, res) => {
-  res.send("MySQL backend connected!");
-});
+// Routes
 
-// Example POST route to insert data
-app.post("/submit",(req,res) => {const { region, pcc, scCode, agencyName, accountOfficer } = req.body;
-
-
-// Backend validation
-if (!region || !pcc || !scCode || !agencyName || !accountOfficer) {
-  return res.status(400).send("All fields are required.");
-}
-
-// Insert data into MySQL
-const query =
-  "INSERT INTO agencies (region, pcc, sc_code, agency_name, account_officer) VALUES (?, ?, ?, ?, ?)";
-db.query(
-  query,
-  [region, pcc, scCode, agencyName, accountOfficer],
-  (err, result) => {
+// 1. Add a new agency (CREATE)
+app.post("/agencies", (req, res) => {
+  const { region, pcc, sc_code, agency_name, account_officer } = req.body;
+  const query =
+    "INSERT INTO agencies (region, pcc, sc_code, agency_name, account_officer) VALUES (?, ?, ?, ?, ?)";
+  db.query(query, [region, pcc, sc_code, agency_name, account_officer], (err) => {
     if (err) {
-      console.error("Error inserting data:", err);
-      res.status(500).send("An error occurred while saving data.");
-    } else {
-      res.status(200).send("Data saved successfully.");
+      console.error("Error adding data:", err);
+      return res.status(500).send("Error saving data.");
     }
-  }
-);
-});
-
-//Get all agencies
-app.get("/agencies", (req, res) => {
-  const query = "SELECT * FROM agencies";
-  db.query(query, (err, result) =>{
-      if(err){
-        console.error("Error fectching data:",err);
-        return res.status(500).send("Error fetching data.");
-      } else {
-        res.status(200).json (result)
-      }
-      
-    
-    
+    res.status(201).send("Data added successfully.");
   });
 });
 
-//Update an agencies ID (UPDATE)
-app.put("/agencies/id:",(req, res) =>{
-  const {id} = req.params;
-  const  { region, pcc, sc_code, agency_name, account_officer} = req.body
-  const query =
- " UPDATE agencies SET region=?, pcc=?, sc_code=?, agency_name=?, account_officer=? WHERE id=?,"
- db.query(
-  query,
-  [region, pcc, sc_code, agency_name, account_officer, id],
-  (err, result) => {
-    if(err){
-      console.error("Error fetching data:",err);
+// 2. Get all agencies (READ)
+app.get("/agencies", (req, res) => {
+  const query = "SELECT * FROM agencies";
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching data:", err);
       return res.status(500).send("Error fetching data.");
     }
-   
     res.status(200).json(results);
   });
 });
 
-//Delete an agency by ID (DELETE)
+// 3. Update an agency by ID (UPDATE)
+app.put("/agencies/:id", (req, res) => {
+  const { id } = req.params;
+  const { region, pcc, sc_code, agency_name, account_officer } = req.body;
+  const query =
+    "UPDATE agencies SET region = ?, pcc = ?, sc_code = ?, agency_name = ?, account_officer = ? WHERE id = ?";
+  db.query(
+    query,
+    [region, pcc, sc_code, agency_name, account_officer, id],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating data:", err);
+        return res.status(500).send("Error updating data.");
+      }
+      res.status(200).send("Data updated successfully.");
+    }
+  );
+});
+
+// 4. Delete an agency by ID (DELETE)
 app.delete("/agencies/:id", (req, res) => {
   const { id } = req.params;
   const query = "DELETE FROM agencies WHERE id = ?";
@@ -107,9 +86,7 @@ app.delete("/agencies/:id", (req, res) => {
   });
 });
 
-
-// start the server
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
