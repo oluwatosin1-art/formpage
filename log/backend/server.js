@@ -46,11 +46,14 @@ app.post("/agencies", (req, res) => {
 // 2. Get all agencies (READ)
 app.get("/agencies", (req, res) => {
   const query = "SELECT * FROM agencies";
-  db.query(query, (err, results) => {
+  db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching data:", err);
-
-//Update an agencies ID (UPDATE)
+      return res.status(500).send("Error fetching data.");
+    }
+    res.status(200).json(result);
+  });
+});
 app.put("/agencies/id:",(req, res) =>{
   const {id} = req.params;
   const{ region, pcc, sc_code, agency_name, account_officer} = req.body
@@ -62,8 +65,12 @@ app.put("/agencies/id:",(req, res) =>{
   (err, result) => {
     if(err){
       console.error("Error fetching data:",err);
+
       return res.status(500).send("Error fetching data.");
     }
+     if (result.affectedRows === 0) {
+        return res.status(404).send("Agency not found.");
+      }
     res.status(200).json(results);
   });
 });
