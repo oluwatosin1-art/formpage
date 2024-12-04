@@ -42,14 +42,14 @@ app.post("/agencies", (req, res) => {
   });
 });
 
-<<<<<<< HEAD
+
 // 2. Get all agencies (READ)
 app.get("/agencies", (req, res) => {
   const query = "SELECT * FROM agencies";
   db.query(query, (err, results) => {
     if (err) {
       console.error("Error fetching data:", err);
-=======
+
 //Update an agencies ID (UPDATE)
 app.put("/agencies/id:",(req, res) =>{
   const {id} = req.params;
@@ -62,7 +62,6 @@ app.put("/agencies/id:",(req, res) =>{
   (err, result) => {
     if(err){
       console.error("Error fetching data:",err);
->>>>>>> e034a9ef93c81fcca66ee04ca229f9abeac3306d
       return res.status(500).send("Error fetching data.");
     }
     res.status(200).json(results);
