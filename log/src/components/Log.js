@@ -12,7 +12,7 @@ const Log = () => {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const apiUrl = "http://localhost:5000/agencies";
+  const apiUrl = "https://backend-theta-roan.vercel.app/agencies";
 
   // Fetch all data
   useEffect(() => {
