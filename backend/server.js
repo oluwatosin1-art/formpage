@@ -7,12 +7,17 @@ const app = express();
 const port = 5000;
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://frontend-tau-livid.vercel.app", "http://localhost:3000"],
+  })
+);
+
 app.use(bodyParser.json());
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: "localhost",
+  host: "localhost", // Update for your production database
   user: "root",
   password: "@boborinwa12",
   database: "agency_db",
@@ -28,57 +33,42 @@ db.connect((err) => {
 
 // Routes
 
-// 1. Add a new agency (CREATE)
+// Add a new agency (CREATE)
 app.post("/agencies", (req, res) => {
   const { region, pcc, sc_code, agency_name, account_officer } = req.body;
+  if (!region || !pcc || !sc_code || !agency_name || !account_officer) {
+    return res.status(400).json({ error: "All fields are required." });
+  }
   const query =
     "INSERT INTO agencies (region, pcc, sc_code, agency_name, account_officer) VALUES (?, ?, ?, ?, ?)";
   db.query(query, [region, pcc, sc_code, agency_name, account_officer], (err) => {
     if (err) {
       console.error("Error adding data:", err);
-      return res.status(500).send("Error saving data.");
+      return res.status(500).json({ error: "Error saving data." });
     }
-    res.status(201).send("Data added successfully.");
+    res.status(201).json({ message: "Data added successfully." });
   });
 });
 
-
-// 2. Get all agencies (READ)
+// Get all agencies (READ)
 app.get("/agencies", (req, res) => {
   const query = "SELECT * FROM agencies";
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching data:", err);
-      return res.status(500).send("Error fetching data.");
+      return res.status(500).json({ error: "Error fetching data." });
     }
     res.status(200).json(result);
   });
 });
-app.put("/agencies/id:",(req, res) =>{
-  const {id} = req.params;
-  const{ region, pcc, sc_code, agency_name, account_officer} = req.body
-  const query =
- " UPDATE agencies SET region=?, pcc=?, sc_code=?, agency_name=?, account_officer=? WHERE id=?,"
- db.query(
-  query,
-  [region, pcc, sc_code, agency_name, account_officer, id],
-  (err, result) => {
-    if(err){
-      console.error("Error fetching data:",err);
 
-      return res.status(500).send("Error fetching data.");
-    }
-     if (result.affectedRows === 0) {
-        return res.status(404).send("Agency not found.");
-      }
-    res.status(200).json(results);
-  });
-});
-
-// 3. Update an agency by ID (UPDATE)
+// Update an agency by ID (UPDATE)
 app.put("/agencies/:id", (req, res) => {
   const { id } = req.params;
   const { region, pcc, sc_code, agency_name, account_officer } = req.body;
+  if (!region || !pcc || !sc_code || !agency_name || !account_officer) {
+    return res.status(400).json({ error: "All fields are required." });
+  }
   const query =
     "UPDATE agencies SET region = ?, pcc = ?, sc_code = ?, agency_name = ?, account_officer = ? WHERE id = ?";
   db.query(
@@ -87,23 +77,26 @@ app.put("/agencies/:id", (req, res) => {
     (err, result) => {
       if (err) {
         console.error("Error updating data:", err);
-        return res.status(500).send("Error updating data.");
+        return res.status(500).json({ error: "Error updating data." });
       }
-      res.status(200).send("Data updated successfully.");
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Agency not found." });
+      }
+      res.status(200).json({ message: "Data updated successfully." });
     }
   );
 });
 
-// 4. Delete an agency by ID (DELETE)
+// Delete an agency by ID (DELETE)
 app.delete("/agencies/:id", (req, res) => {
   const { id } = req.params;
   const query = "DELETE FROM agencies WHERE id = ?";
   db.query(query, [id], (err) => {
     if (err) {
       console.error("Error deleting data:", err);
-      return res.status(500).send("Error deleting data.");
+      return res.status(500).json({ error: "Error deleting data." });
     }
-    res.status(200).send("Data deleted successfully.");
+    res.status(200).json({ message: "Data deleted successfully." });
   });
 });
 
