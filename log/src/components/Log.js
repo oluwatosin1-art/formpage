@@ -15,7 +15,7 @@ const Log = () => {
   // Dynamic API base URL
   const API_BASE_URL =
     process.env.NODE_ENV === "production"
-      ? "https://backend-theta-roan.vercel.app"
+      ? "https://backend-theta-roan.vercel.app"  
       : "http://localhost:5000";
 
   const apiUrl = `${API_BASE_URL}/agencies`;

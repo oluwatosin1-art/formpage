@@ -10,17 +10,20 @@ const port = 5000;
 app.use(
   cors({
     origin: ["https://frontend-tau-livid.vercel.app", "http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
   })
 );
+
 
 app.use(bodyParser.json());
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: "localhost", // Update for your production database
-  user: "root",
-  password: "@boborinwa12",
-  database: "agency_db",
+  host: process.env.MYSQL_HOST, // Use environment variables for production
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
 });
 
 db.connect((err) => {
@@ -43,8 +46,8 @@ app.post("/agencies", (req, res) => {
     "INSERT INTO agencies (region, pcc, sc_code, agency_name, account_officer) VALUES (?, ?, ?, ?, ?)";
   db.query(query, [region, pcc, sc_code, agency_name, account_officer], (err) => {
     if (err) {
-      console.error("Error adding data:", err);
-      return res.status(500).json({ error: "Error saving data." });
+      console.error("Error adding data:", err.message);
+      return res.status(500).json({ error: "Error saving data.", details: err.message });
     }
     res.status(201).json({ message: "Data added successfully." });
   });
@@ -55,8 +58,8 @@ app.get("/agencies", (req, res) => {
   const query = "SELECT * FROM agencies";
   db.query(query, (err, result) => {
     if (err) {
-      console.error("Error fetching data:", err);
-      return res.status(500).json({ error: "Error fetching data." });
+      console.error("Error fetching data:", err.message);
+      return res.status(500).json({ error: "Error fetching data.", details: err.message });
     }
     res.status(200).json(result);
   });
@@ -76,8 +79,8 @@ app.put("/agencies/:id", (req, res) => {
     [region, pcc, sc_code, agency_name, account_officer, id],
     (err, result) => {
       if (err) {
-        console.error("Error updating data:", err);
-        return res.status(500).json({ error: "Error updating data." });
+        console.error("Error updating data:", err.message);
+        return res.status(500).json({ error: "Error updating data.", details: err.message });
       }
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: "Agency not found." });
@@ -93,8 +96,8 @@ app.delete("/agencies/:id", (req, res) => {
   const query = "DELETE FROM agencies WHERE id = ?";
   db.query(query, [id], (err) => {
     if (err) {
-      console.error("Error deleting data:", err);
-      return res.status(500).json({ error: "Error deleting data." });
+      console.error("Error deleting data:", err.message);
+      return res.status(500).json({ error: "Error deleting data.", details: err.message });
     }
     res.status(200).json({ message: "Data deleted successfully." });
   });
